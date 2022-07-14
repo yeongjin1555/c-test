@@ -108,32 +108,36 @@ void Zergling::Move()
     Location zp=Zergling::GetLocation();
     Zergling::posx=zp.x;
     Zergling::posy=zp.y;
-    
+
+    while((Zergling::posx<=Zergling::firstTargetPosition.x)&&(Zergling::posy<=Zergling::firstTargetPosition.y))
+    {
+        float ang=DifAng(Zergling::GetLocation(),Zergling::firstTargetPosition);
+        Zergling::posx+=cos(ang)*dt*Zergling::movespeed;
+        Zergling::posy+=sin(ang)*dt*Zergling::movespeed;
+        Zergling::DisplayCurrentLocation();
+    }
+
     while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<=Zergling::targetPosition.y))
-    {       
-        if(!Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
-        {
+    {   
+        /*if(!Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
+        {   
             float ang=DifAng(Zergling::GetLocation(),Zergling::firstTargetPosition);
             Zergling::posx+=cos(ang)*dt*Zergling::movespeed;
             Zergling::posy+=sin(ang)*dt*Zergling::movespeed;
-            
-
         }
-
-        if(Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
+        */
+        //if(Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
         {   
             Zergling::movespeed=2;
             float ang2=DifAng(Zergling::GetLocation(),Zergling::targetPosition);
             Zergling::posx+=cos(ang2)*dt*Zergling::movespeed;
             Zergling::posy+=sin(ang2)*dt*Zergling::movespeed;
+            
         }
-        
-        Zergling::countmove+=dt;
-        
     }
     
     if((Zergling::posx>=Zergling::targetPosition.x)&&(Zergling::posy>=Zergling::targetPosition.y))
-       {   
+    {   
         Zergling::SetLocation(Zergling::targetPosition.x,Zergling::targetPosition.y);
     }
 }
@@ -204,7 +208,7 @@ int main(void)
     z.targetPosition.x=50;
     z.targetPosition.y=50;
     z.Move();
-    //z.DisplayCurrentLocation();
+    z.DisplayCurrentLocation();
 
     return 0;
 }
