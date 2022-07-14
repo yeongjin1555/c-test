@@ -99,8 +99,7 @@ bool Zergling::IsSpeedUpgrade(bool isFirstTargetReached)
 {
     if((Zergling::posx=Zergling::firstTargetPosition.x)&&(Zergling::posy==Zergling::firstTargetPosition.y))
         {
-            Zergling::speedUpgrade=true;
-            return Zergling::speedUpgrade;
+            return true;
         }
 }
 
@@ -111,26 +110,24 @@ void Zergling::Move()
     Zergling::posy=zp.y;
     
     while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<=Zergling::targetPosition.y))
-    {       Zergling::DisplayCurrentLocation();
+    {       
         if(!Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
         {
             float ang=DifAng(Zergling::GetLocation(),Zergling::firstTargetPosition);
             Zergling::posx+=cos(ang)*dt*Zergling::movespeed;
             Zergling::posy+=sin(ang)*dt*Zergling::movespeed;
-            Zergling::DisplayCurrentLocation();
+            
 
         }
+
         if(Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
         {   
             Zergling::movespeed=2;
-            //Zergling::posx=Zergling::firstTargetPosition.x;
-            //Zergling::posy=Zergling::firstTargetPosition.y;
+            float ang2=DifAng(Zergling::GetLocation(),Zergling::targetPosition);
+            Zergling::posx+=cos(ang2)*dt*Zergling::movespeed;
+            Zergling::posy+=sin(ang2)*dt*Zergling::movespeed;
         }
         
-        float ang2=DifAng(Zergling::GetLocation(),Zergling::targetPosition);
-        Zergling::posx+=cos(ang2)*dt*Zergling::movespeed;
-        Zergling::posy+=sin(ang2)*dt*Zergling::movespeed;
-
         Zergling::countmove+=dt;
         
     }
@@ -138,8 +135,7 @@ void Zergling::Move()
     if((Zergling::posx>=Zergling::targetPosition.x)&&(Zergling::posy>=Zergling::targetPosition.y))
        {   
         Zergling::SetLocation(Zergling::targetPosition.x,Zergling::targetPosition.y);
-        }
-    //cout<<Zergling::countmove<<endl;
+    }
 }
 
 class Marine : public Unit
