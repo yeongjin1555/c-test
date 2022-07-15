@@ -18,8 +18,8 @@ class Unit
     void DisplayCurrentLocation();
     Location firstTargetPosition;
     Location targetPosition;
-    float countmove=0;
-    float dt=.1;
+    int countmove=0;
+    int dt=1;
 
     protected:
     float posx=0;
@@ -115,7 +115,7 @@ void Zergling::Move()
         float ang=DifAng(Zergling::GetLocation(),Zergling::firstTargetPosition);
         Zergling::posx+=cos(ang)*dt*Zergling::movespeed;
         Zergling::posy+=sin(ang)*dt*Zergling::movespeed;
-        Zergling::DisplayCurrentLocation();
+        //Zergling::DisplayCurrentLocation();
         if((Zergling::posx>=Zergling::firstTargetPosition.x)&&(Zergling::posy>=Zergling::firstTargetPosition.y))
         {
             Zergling::posx=Zergling::firstTargetPosition.x;
@@ -137,7 +137,7 @@ void Zergling::Move()
                 Zergling::posx=Zergling::targetPosition.x;
                 Zergling::posy=Zergling::targetPosition.y;
             }  
-            Zergling::DisplayCurrentLocation();  
+            //Zergling::DisplayCurrentLocation();  
     }
     
 }
@@ -158,7 +158,8 @@ void Marine::Move()
     Marine::posx=mp.x;
     Marine::posy=mp.y;
     while((Marine::posx<=Marine::targetPosition.x) && (Marine::posy<=Marine::targetPosition.y))
-    {   Marine::DisplayCurrentLocation();
+    {   //Marine::DisplayCurrentLocation();
+        //Marine::IsZerglingNear(Zergling::GetLocation());
         float ang=DifAng(Marine::GetLocation(),Marine::targetPosition);
         Marine::posx+=cos(ang)*dt*Marine::movespeed;
         Marine::posy+=sin(ang)*dt*Marine::movespeed;
@@ -175,8 +176,22 @@ void Marine::Move()
     
 }
 
+void Marine::IsZerglingNear(Location ZerglinCurrentLocation)
+{   
+    int distance=DifDis(Marine::GetLocation(),ZerglinCurrentLocation);
+    if(distance<=5)
+    {
+        Marine::movespeed=2;
+    }
+    if(distance>5)
+    {
+        Marine::movespeed=1;
+    }
+
+}
+
 class Stalker : public Unit
-{
+{   public:
     void Move();
     void Blink();
 
@@ -186,9 +201,52 @@ class Stalker : public Unit
 
 void Stalker::Move()
 {
-
+    Location zp=Stalker::GetLocation();
+    Stalker::posx=zp.x;
+    Stalker::posy=zp.y;
+    
+    while(!Stalker::IsSpeedUpgrade(Stalker::speedUpgrade))
+    {	Stalker::Blink();
+        float ang=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
+        Stalker::posx+=cos(ang)*dt*Stalker::movespeed;
+        Stalker::posy+=sin(ang)*dt*Stalker::movespeed;
+        //Stalker::DisplayCurrentLocation();
+        if((Stalker::posx>=Stalker::firstTargetPosition.x)&&(Stalker::posy>=Stalker::firstTargetPosition.y))
+        {
+            Stalker::posx=Stalker::firstTargetPosition.x;
+            Stalker::posy=Stalker::firstTargetPosition.y;
+            Stalker::speedUpgrade=true;
+        }
+    }
+    
+    while((Stalker::posx<=Stalker::targetPosition.x)&&(Stalker::posy<Stalker::targetPosition.y))
+    {   
+        
+            Stalker::movespeed=1;
+            float ang2=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
+            Stalker::posx+=cos(ang2)*dt*Stalker::movespeed;
+            Stalker::posy+=sin(ang2)*dt*Stalker::movespeed;
+            
+            if((Stalker::posx>=Stalker::targetPosition.x)&&(Stalker::posy>=Stalker::targetPosition.y))
+            {
+                Stalker::posx=Stalker::targetPosition.x;
+                Stalker::posy=Stalker::targetPosition.y;
+            }  
+            //Stalker::DisplayCurrentLocation();  
+    }
+    
+    
 }
 
+void Stalker::Blink()
+{   int a=5/(sqrt(2));
+    if(Stalker::countmove%(dt*10)==0)
+    {   
+        float ang=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
+        Stalker::posx+=cos(ang)*dt*a;
+        Stalker::posy+=sin(ang)*dt*a;
+    }
+}
 
 int main(void)
 {   
@@ -197,7 +255,9 @@ int main(void)
     m.targetPosition.y=50;
     m.Move();
     m.DisplayCurrentLocation();
+    
     cout<<" "<<endl;
+    
     Zergling z;
     z.firstTargetPosition.x=50;
     z.firstTargetPosition.y=0;
@@ -205,6 +265,15 @@ int main(void)
     z.targetPosition.y=50;
     z.Move();
     z.DisplayCurrentLocation();
+    
+    cout<<" "<<endl;
 
+    Stalker s;
+    s.firstTargetPosition.x=10;
+    s.firstTargetPosition.y=20;
+    s.targetPosition.x=50;
+    s.targetPosition.y=50;
+    s.Move();
+    s.DisplayCurrentLocation();
     return 0;
 }
