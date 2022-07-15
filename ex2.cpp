@@ -202,7 +202,7 @@ class Stalker : public Unit
     bool IsFirstTargetReached();
 
     private:
-    int movespeed=1;
+    const int movespeed=1;
 };
 
 
@@ -231,13 +231,16 @@ void Stalker::Move()
         {
            Stalker::Blink();
            Stalker::countmove+=dt;
-           Stalker::DisplayCurrentLocation();
+           
         }
         
-        float ang=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
-        Stalker::posx+=cos(ang)*dt*Stalker::movespeed;
-        Stalker::posy+=sin(ang)*dt*Stalker::movespeed;
-
+        if((Stalker::countmove%10)!=0)
+        {
+            float ang=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
+            Stalker::posx+=cos(ang)*dt*Stalker::movespeed;
+            Stalker::posy+=sin(ang)*dt*Stalker::movespeed;
+            Stalker::countmove+=dt;
+        }
         
 
         if((Stalker::posx>=Stalker::firstTargetPosition.x)&&(Stalker::posy>=Stalker::firstTargetPosition.y))
@@ -247,7 +250,7 @@ void Stalker::Move()
         }
         
         Stalker::DisplayCurrentLocation();
-        Stalker::countmove+=dt;
+        //Stalker::countmove+=dt;
     }
     
     while((Stalker::posx<Stalker::targetPosition.x)&&(Stalker::posy<Stalker::targetPosition.y))
@@ -255,8 +258,11 @@ void Stalker::Move()
         
         if((Stalker::countmove%10)==0)
         {
-           Stalker::Blink();
-           Stalker::countmove+=dt;
+            if((Stalker::posx<Stalker::targetPosition.x)&&(Stalker::posy==Stalker::targetPosition.y))
+            {
+                Stalker::Blink();
+                Stalker::countmove+=dt;
+            }
         }
 
         if((Stalker::countmove%10)!=0)
@@ -264,17 +270,20 @@ void Stalker::Move()
             float ang2=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
             Stalker::posx+=cos(ang2)*dt*Stalker::movespeed;
             Stalker::posy+=sin(ang2)*dt*Stalker::movespeed;
+            //Stalker::countmove+=dt;
+        }
+        
+        if((Stalker::posx>=Stalker::targetPosition.x)&&(Stalker::posy>=Stalker::targetPosition.y))
+        {
+            Stalker::posx=Stalker::targetPosition.x;
+            Stalker::posy=Stalker::targetPosition.y;
         }
 
         Stalker::DisplayCurrentLocation();
         Stalker::countmove+=dt;
     }
     
-    if((Stalker::posx>=Stalker::targetPosition.x)&&(Stalker::posy>=Stalker::targetPosition.y))
-        {
-            Stalker::posx=Stalker::targetPosition.x;
-            Stalker::posy=Stalker::targetPosition.y;
-        }
+    
     
 }
 
