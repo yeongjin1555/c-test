@@ -19,7 +19,7 @@ class Unit
     Location firstTargetPosition;
     Location targetPosition;
     float countmove=0;
-    float dt=1;
+    float dt=.1;
 
     protected:
     float posx=0;
@@ -124,15 +124,22 @@ void Zergling::Move()
         }
     }
     
-    while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<=Zergling::targetPosition.y))
+    while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<Zergling::targetPosition.y))
     {   
         
             Zergling::movespeed=2;
             float ang2=DifAng(Zergling::GetLocation(),Zergling::targetPosition);
             Zergling::posx+=cos(ang2)*dt*Zergling::movespeed;
             Zergling::posy+=sin(ang2)*dt*Zergling::movespeed;
-            Zergling::DisplayCurrentLocation();    
+            
+            if((Zergling::posx>=Zergling::targetPosition.x)&&(Zergling::posy>=Zergling::targetPosition.y))
+            {
+                Zergling::posx=Zergling::targetPosition.x;
+                Zergling::posy=Zergling::targetPosition.y;
+            }  
+            Zergling::DisplayCurrentLocation();  
     }
+    
 }
 
 class Marine : public Unit
@@ -151,7 +158,7 @@ void Marine::Move()
     Marine::posx=mp.x;
     Marine::posy=mp.y;
     while((Marine::posx<=Marine::targetPosition.x) && (Marine::posy<=Marine::targetPosition.y))
-    {
+    {   Marine::DisplayCurrentLocation();
         float ang=DifAng(Marine::GetLocation(),Marine::targetPosition);
         Marine::posx+=cos(ang)*dt*Marine::movespeed;
         Marine::posy+=sin(ang)*dt*Marine::movespeed;
@@ -159,16 +166,12 @@ void Marine::Move()
         Marine::countmove+=dt;
 
     }
-    if (Marine::posx>Marine::targetPosition.x)
-    {
-        Marine::posx=Marine::targetPosition.x;
-    }
-    if(Marine::posy>Marine::Marine::targetPosition.y)
-    {
-        Marine::posy=targetPosition.y;
-    }
-    Marine::SetLocation(posx,posy);
-    cout<<"Marine이 target에 도달하는데 걸린 시간은 "<<countmove<<endl;
+    if((Marine::posx>=Marine::targetPosition.x)&&(Marine::posy>=Marine::targetPosition.y))
+        {
+            Marine::posx=Marine::targetPosition.x;
+            Marine::posy=Marine::targetPosition.y;
+        }
+    //cout<<"Marine이 target에 도달하는데 걸린 시간은 "<<countmove<<endl;
     
 }
 
@@ -189,18 +192,19 @@ void Stalker::Move()
 
 int main(void)
 {   
-    /*Marine m;
+    Marine m;
     m.targetPosition.x=50;
     m.targetPosition.y=50;
     m.Move();
     m.DisplayCurrentLocation();
-    */
+    cout<<" "<<endl;
     Zergling z;
     z.firstTargetPosition.x=50;
     z.firstTargetPosition.y=0;
     z.targetPosition.x=50;
     z.targetPosition.y=50;
     z.Move();
+    z.DisplayCurrentLocation();
 
     return 0;
 }
