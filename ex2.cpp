@@ -11,15 +11,17 @@ struct Location
 };
 
 class Unit
-{   public:
+{   
+    public:
     void SetLocation(float x, float y);
     Location GetLocation();
     virtual void Move()=0;
     void DisplayCurrentLocation();
     Location firstTargetPosition;
     Location targetPosition;
-    int countmove=0;
-    const int dt=1;
+    float countmove=0.00;
+    const float dt=0.1;
+    float ts=1/dt;
 
     protected:
     float posx=0;
@@ -41,6 +43,7 @@ float DifAng(Location me, Location target)
     float a=sqrt((c.x*c.x)+(c.y*c.y));
     float b=c.x/a;
     float d=acos(b);
+    
     return d;
     
 }
@@ -93,7 +96,7 @@ class Zergling : public Unit
 
 bool Zergling::IsSpeedUpgrade(bool isFirstTargetReached)
 {
-    if((Zergling::posx==Zergling::firstTargetPosition.x)&&(Zergling::posy==Zergling::firstTargetPosition.y))
+    if((Zergling::posx>=Zergling::firstTargetPosition.x)&&(Zergling::posy>=Zergling::firstTargetPosition.y))
         {   Zergling::speedUpgrade=true;
             return Zergling::speedUpgrade;
         }
@@ -109,7 +112,7 @@ void Zergling::Move()
     Location zp=Zergling::GetLocation();
     Zergling::posx=zp.x;
     Zergling::posy=zp.y;
-    Zergling::DisplayCurrentLocation();
+    //Zergling::DisplayCurrentLocation();
     
     while(!Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
     {
@@ -123,10 +126,10 @@ void Zergling::Move()
             Zergling::posy=Zergling::firstTargetPosition.y;
             Zergling::speedUpgrade=true;
         }
-        Zergling::DisplayCurrentLocation();
+        //Zergling::DisplayCurrentLocation();
         Zergling::countmove+=dt;
     }
-    
+    //cout<<Zergling::countmove<<endl;
     while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<Zergling::targetPosition.y))
     {   
         
@@ -134,14 +137,15 @@ void Zergling::Move()
             float ang2=DifAng(Zergling::GetLocation(),Zergling::targetPosition);
             Zergling::posx+=cos(ang2)*dt*Zergling::movespeed;
             Zergling::posy+=sin(ang2)*dt*Zergling::movespeed;
-            
+            Zergling::countmove+=dt;
+
             if((Zergling::posx>=Zergling::targetPosition.x)&&(Zergling::posy>=Zergling::targetPosition.y))
             {
                 Zergling::posx=Zergling::targetPosition.x;
                 Zergling::posy=Zergling::targetPosition.y;
             }  
-            Zergling::DisplayCurrentLocation();  
-            Zergling::countmove+=dt;
+            //Zergling::DisplayCurrentLocation();  
+            //cout<<Zergling::countmove<<endl;
     }
     
 }
@@ -161,7 +165,7 @@ void Marine::Move()
     Location mp=Marine::GetLocation();
     Marine::posx=mp.x;
     Marine::posy=mp.y;
-    Marine::DisplayCurrentLocation();
+    //Marine::DisplayCurrentLocation();
 
     while((Marine::posx<Marine::targetPosition.x) && (Marine::posy<Marine::targetPosition.y))
     {   Zergling z;
@@ -169,7 +173,6 @@ void Marine::Move()
         float ang=DifAng(Marine::GetLocation(),Marine::targetPosition);
         Marine::posx+=cos(ang)*dt*Marine::movespeed;
         Marine::posy+=sin(ang)*dt*Marine::movespeed;
-        Marine::SetLocation(Marine::posx,Marine::posy);
         Marine::countmove+=dt;
         
         if((Marine::posx>=Marine::targetPosition.x)&&(Marine::posy>=Marine::targetPosition.y))
@@ -177,10 +180,10 @@ void Marine::Move()
             Marine::posx=Marine::targetPosition.x;
             Marine::posy=Marine::targetPosition.y;
         }
-        Marine::DisplayCurrentLocation();
     }
     
-    //cout<<"Marine이 target에 도달하는데 걸린 시간은 "<<countmove<<endl;
+    
+        //Marine::DisplayCurrentLocation();
     
 }
 
@@ -202,29 +205,18 @@ void Marine::IsZerglingNear(Location ZerglinCurrentLocation)
 }
 
 class Stalker : public Unit
-{   public:
+{   
+    public:
     void Move();
     void Blink();
-    bool IsFirstTargetReached();
-    int ct=5;
+
+    float ct=0;
+    const float t=10;
 
     private:
     const int movespeed=1;
 };
 
-
-bool Stalker::IsFirstTargetReached()
-{
-    if((Stalker::posx>=Stalker::firstTargetPosition.x)&&(Stalker::posy==Stalker::firstTargetPosition.y))
-    {
-        return true;
-    }
-    
-    if((Stalker::posx<Stalker::firstTargetPosition.x)&&(Stalker::posy<Stalker::firstTargetPosition.y))
-    {
-        return false;
-    }
-}  
 
 void Stalker::Move()
 {
@@ -232,52 +224,47 @@ void Stalker::Move()
     Stalker::posx=sp.x;
     Stalker::posy=sp.y;
     Stalker::DisplayCurrentLocation();
-    while(!Stalker::IsFirstTargetReached())
+    
+    while((Stalker::posx<Stalker::firstTargetPosition.x)&&(Stalker::posy<=Stalker::firstTargetPosition.y))
     {	
-        if(Stalker::countmove%Stalker::ct==0)
-        {
-           Stalker::Blink();
-           Stalker::countmove+=dt;
-           
-        }
-        
-        if((Stalker::countmove%Stalker::ct)!=0)
+        if(Stalker::ct>0)
         {
             float ang=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
+            //cout<<cos(ang)<<endl;
             Stalker::posx+=cos(ang)*dt*Stalker::movespeed;
             Stalker::posy+=sin(ang)*dt*Stalker::movespeed;
             Stalker::countmove+=dt;
+            Stalker::ct-= dt;
+            Stalker::DisplayCurrentLocation();
         }
-        
+
+        if(Stalker::ct<=0)
+        {
+           Stalker::Blink();
+           Stalker::countmove+=dt;
+           Stalker::ct=Stalker::t;
+           cout<< " Stalker Blinked!!@@@@@@@@@@@@@@" << endl;
+           Stalker::DisplayCurrentLocation();
+        }
 
         if((Stalker::posx>=Stalker::firstTargetPosition.x)&&(Stalker::posy>=Stalker::firstTargetPosition.y))
         {
-            Stalker::posx=Stalker::firstTargetPosition.x;
-            Stalker::posy=Stalker::firstTargetPosition.y;
+                Stalker::posx=Stalker::firstTargetPosition.x;
+                Stalker::posy=Stalker::firstTargetPosition.y;
         }
         
-        Stalker::DisplayCurrentLocation();
-        Stalker::countmove+=dt;
-    }
+        //cout<<Stalker::ct<<endl;
+        
     
-    while((Stalker::posx<Stalker::targetPosition.x)&&(Stalker::posy<Stalker::targetPosition.y))
+    }
+    while((Stalker::firstTargetPosition.x<Stalker::posx<=Stalker::targetPosition.x)&&(Stalker::posy<=Stalker::targetPosition.y))
     {   
-        
-        if((Stalker::countmove%Stalker::ct)==0)
+        if(Stalker::ct<=0) 
         {
-            if((Stalker::posx<Stalker::targetPosition.x)&&(Stalker::posy<Stalker::targetPosition.y))
-            {
-                Stalker::Blink();
-                Stalker::countmove+=dt;
-            }
-        }
-
-        if((Stalker::countmove%Stalker::ct)!=0)
-        {
-            float ang2=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
-            Stalker::posx+=cos(ang2)*dt*Stalker::movespeed;
-            Stalker::posy+=sin(ang2)*dt*Stalker::movespeed;
-            
+            Stalker::Blink();
+            Stalker::countmove+=dt;
+            Stalker::ct=Stalker::t;
+            cout<< " Stalker Blinked!!@@@@@@@@@@@@@@" << endl;
         }
         
         if((Stalker::posx>=Stalker::targetPosition.x)&&(Stalker::posy>=Stalker::targetPosition.y))
@@ -285,25 +272,44 @@ void Stalker::Move()
             Stalker::posx=Stalker::targetPosition.x;
             Stalker::posy=Stalker::targetPosition.y;
         }
-
+        
         Stalker::DisplayCurrentLocation();
-        Stalker::countmove+=dt;
+
+        if(Stalker::ct>0)
+        {
+            float ang2=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
+            Stalker::posx+=cos(ang2)*dt*Stalker::movespeed;
+            Stalker::posy+=sin(ang2)*dt*Stalker::movespeed;
+            Stalker::countmove+=dt;
+            Stalker::ct-= dt;
+            //cout<<cos(ang2)<<endl;
+            if((Stalker::posx>=Stalker::targetPosition.x)&&(Stalker::posy>=Stalker::targetPosition.y))
+                {
+                    Stalker::posx=Stalker::targetPosition.x;
+                    Stalker::posy=Stalker::targetPosition.y;
+                }
+
+        }
+        
+        
+        //cout<<Stalker::ct<<endl;
+        
     }
+    }
+
     
-    
-    
-}
+
 
 
 
 void Stalker::Blink()
-{   float q=sqrt(5);
+{   float q=5;
       
     if((Stalker::posx<Stalker::firstTargetPosition.x)&&(Stalker::posy<Stalker::firstTargetPosition.y))
     {
-        float ang=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
-        Stalker::posx+=cos(ang)*dt*q;
-        Stalker::posy+=sin(ang)*dt*q;
+        float ang1=DifAng(Stalker::GetLocation(),Stalker::firstTargetPosition);
+        Stalker::posx+=cos(ang1)*q;
+        Stalker::posy+=sin(ang1)*q;
 
         if((Stalker::posx>Stalker::firstTargetPosition.x)&&(Stalker::posy>Stalker::firstTargetPosition.y))
         {
@@ -313,11 +319,11 @@ void Stalker::Blink()
             
     }
 
-    if((Stalker::firstTargetPosition.x<Stalker::posx<=Stalker::targetPosition.x)&&(Stalker::firstTargetPosition.y<Stalker::posy<=Stalker::targetPosition.y))
+    else if((Stalker::firstTargetPosition.x<=Stalker::posx<=Stalker::targetPosition.x)&&(Stalker::firstTargetPosition.y<=Stalker::posy<=Stalker::targetPosition.y))
     {   
-        float ang=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
-        Stalker::posx+=cos(ang)*dt*q;
-        Stalker::posy+=sin(ang)*dt*q;
+        float ang3=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
+        Stalker::posx+=cos(ang3)*dt*q;
+        Stalker::posy+=sin(ang3)*dt*q;
 
         if((Stalker::posx>Stalker::targetPosition.x)&&(Stalker::posy>Stalker::targetPosition.y))
         {
@@ -356,8 +362,10 @@ int main(void)
     s.targetPosition.y=50;
     s.Move();
     //s.DisplayCurrentLocation();
+    
     cout<<"저글링이 도착하는 시간 : "<<z.countmove<<endl;
     cout<<"마린이 도착하는 시간 : "<<m.countmove<<endl;
-    cout<<"스털커이 도착하는 시간 : "<<s.countmove<<endl;
+    cout<<"스털커가 도착하는 시간 : "<<s.countmove<<endl;
+    //cout<<z.dt<<" "<<z.ts<<" "<<m.dt<<" "<<m.ts<<" "<<s.dt<<" "<<s.ts<<endl;
     return 0;
 }
