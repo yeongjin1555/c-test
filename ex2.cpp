@@ -6,8 +6,8 @@ using namespace std;
 
 struct Location
 {
-    float x;
-    float y;
+    float x = 0;
+    float y = 0;
 };
 
 class Unit
@@ -61,8 +61,8 @@ float DifDis(Location me, Location target)
 
 
 
-Location Unit::GetLocation()
-{   Location l;
+Location Unit::GetLocation() {   
+    Location l;
     l.x=Unit::posx;
     l.y=Unit::posy;
     return l;
@@ -97,21 +97,22 @@ class Zergling : public Unit
 bool Zergling::IsSpeedUpgrade(bool isFirstTargetReached)
 {
     if((Zergling::posx>=Zergling::firstTargetPosition.x)&&(Zergling::posy>=Zergling::firstTargetPosition.y))
-        {   Zergling::speedUpgrade=true;
-            return Zergling::speedUpgrade;
-        }
+    {   
+        Zergling::speedUpgrade=true;
+    }
     else if((Zergling::posx!=Zergling::firstTargetPosition.x)&&(Zergling::posy!=Zergling::firstTargetPosition.y))
     {
         Zergling::speedUpgrade=false;
-        return Zergling::speedUpgrade;
+
     }
+    return Zergling::speedUpgrade;
 }
 
 void Zergling::Move()
 {
-    Location zp=Zergling::GetLocation();
-    Zergling::posx=zp.x;
-    Zergling::posy=zp.y;
+    // Location zp=Zergling::GetLocation();
+    // Zergling::posx=zp.x;
+    // Zergling::posy=zp.y;
     //Zergling::DisplayCurrentLocation();
     
     while(!Zergling::IsSpeedUpgrade(Zergling::speedUpgrade))
@@ -130,7 +131,7 @@ void Zergling::Move()
         Zergling::countmove+=dt;
     }
     //cout<<Zergling::countmove<<endl;
-    while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<Zergling::targetPosition.y))
+    while((Zergling::posx<=Zergling::targetPosition.x)&&(Zergling::posy<=Zergling::targetPosition.y))
     {   
         
             Zergling::movespeed=2;
@@ -322,8 +323,8 @@ void Stalker::Blink()
     else if((Stalker::firstTargetPosition.x<=Stalker::posx<=Stalker::targetPosition.x)&&(Stalker::firstTargetPosition.y<=Stalker::posy<=Stalker::targetPosition.y))
     {   
         float ang3=DifAng(Stalker::GetLocation(),Stalker::targetPosition);
-        Stalker::posx+=cos(ang3)*dt*q;
-        Stalker::posy+=sin(ang3)*dt*q;
+        Stalker::posx+=cos(ang3)*q;
+        Stalker::posy+=sin(ang3)*q;
 
         if((Stalker::posx>Stalker::targetPosition.x)&&(Stalker::posy>Stalker::targetPosition.y))
         {
