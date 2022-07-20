@@ -15,7 +15,7 @@ public:
     const float epsilon_=0.1f;
     Location firstTargetPosition_;
     Location targetPosition_;
-    float countMove_=0.f;
+    float countMove_=0.0f;
 
 private:
     Location currentLocation_;
@@ -24,8 +24,8 @@ private:
 float diffDistance(Location myLocation, Location targetLocation)
 {
     Location c;
-    c.x_=myLocation.x_-targetLocation.x_;
-    c.y_=myLocation.y_-targetLocation.y_;
+    c.x_=targetLocation.x_-myLocation.x_;
+    c.y_=targetLocation.y_-myLocation.y_;
     float distance=std::sqrt((c.x_*c.x_)+(c.y_*c.y_));
     return distance;
 }
@@ -33,8 +33,8 @@ float diffDistance(Location myLocation, Location targetLocation)
 float diffAngle(Location myLocation, Location targetLocation)
 {
     Location c;
-    c.x_=myLocation.x_-targetLocation.x_;
-    c.y_=myLocation.y_-targetLocation.y_;
+    c.x_=targetLocation.x_-myLocation.x_;
+    c.y_=targetLocation.y_-myLocation.y_;
     float distance=std::sqrt((c.x_*c.x_)+(c.y_*c.y_));
     float a=c.x_/distance;
     float angle=acos(a);
@@ -83,12 +83,12 @@ void Zergling::Move(){
     bool need_upgrade = (diffDistance(position, firstTargetPosition_) < epsilon_);
     if(!IsSpeedUpgrade(need_upgrade))
     {
-        position.x_-=cos(angle1)*dt_*moveSpeed_;
+        position.x_+=cos(angle1)*dt_*moveSpeed_;
         position.y_+=sin(angle1)*dt_*moveSpeed_;
         SetLocation(position.x_,position.y_);  
     }
     else{
-        position.x_-=cos(angle2)*dt_*moveSpeed_;
+        position.x_+=cos(angle2)*dt_*moveSpeed_;
         position.y_+=sin(angle2)*dt_*moveSpeed_;
         SetLocation(position.x_,position.y_);
     }
@@ -98,6 +98,7 @@ class Marine : public Unit{
 public:
     void Move();
     void IsZerglingNear(Location ZerlingCurrentLocation);
+    int GetMoveSpeed();
 private:
     bool needSpeedUpgrade_ = false;
     int moveSpeed_=1;
@@ -105,9 +106,8 @@ private:
 
 void Marine::IsZerglingNear(Location ZerlingCurrentLocation){
     
-    float d;
-    d=diffDistance(GetLocation(),ZerlingCurrentLocation);
-    if(d>5){
+    float d = diffDistance(GetLocation(),ZerlingCurrentLocation);
+    if(d>5.0f){
         moveSpeed_=1;
         needSpeedUpgrade_ = false;
     }
@@ -118,10 +118,14 @@ void Marine::IsZerglingNear(Location ZerlingCurrentLocation){
     
 }
 
+int Marine::GetMoveSpeed() {
+    return moveSpeed_;
+}
+
 void Marine::Move(){
     Location position=GetLocation();
     float angle=diffAngle(position,targetPosition_);
-    position.x_-=cos(angle)*dt_*moveSpeed_;
+    position.x_+=cos(angle)*dt_*moveSpeed_;
     position.y_+=sin(angle)*dt_*moveSpeed_;
     SetLocation(position.x_, position.y_);
 }
@@ -152,16 +156,16 @@ void Stalker::Move(){
     }
 
     if(!firstTargetReached_){
-        position.x_-=cos(angle1)*dt_*moveSpeed_;
+        position.x_+=cos(angle1)*dt_*moveSpeed_;
         position.y_+=sin(angle1)*dt_*moveSpeed_;
-        SetLocation(position.x_,position.y_);
     }
 
     if(firstTargetReached_){
-        position.x_-=cos(angle2)*dt_*moveSpeed_;
+        position.x_+=cos(angle2)*dt_*moveSpeed_;
         position.y_+=sin(angle2)*dt_*moveSpeed_;
-        SetLocation(position.x_,position.y_);
     }
+    SetLocation(position.x_,position.y_);
+
 }
 
 void Stalker::Blink(){
@@ -177,7 +181,7 @@ void Stalker::Blink(){
     }
 
     if(!firstTargetReached_){
-        position.x_-=cos(angle1)*q;
+        position.x_+=cos(angle1)*q;
         position.y_+=sin(angle1)*q;
         SetLocation(position.x_,position.y_);
 
@@ -188,7 +192,7 @@ void Stalker::Blink(){
     }
 
     if(firstTargetReached_){
-        position.x_-=cos(angle2)*q;
+        position.x_+=cos(angle2)*q;
         position.y_+=sin(angle2)*q;
         SetLocation(position.x_,position.y_);
 
@@ -229,6 +233,7 @@ int main(void){
             m.Move();
             m.countMove_+=m.dt_;
             //m.DisplayCurrentLocation();
+            //std::cout << m.GetMoveSpeed() << std::endl;
         }
         if(diffDistance(s.GetLocation(),s.targetPosition_)>s.epsilon_){
            
