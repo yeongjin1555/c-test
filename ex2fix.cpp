@@ -30,7 +30,7 @@ float diffDistance(Location myLocation, Location targetLocation)
     return distance;
 }
 
-float diffAng(Location myLocation, Location targetLocation)
+float diffAngle(Location myLocation, Location targetLocation)
 {
     Location c;
     c.x_=myLocation.x_-targetLocation.x_;
@@ -56,41 +56,41 @@ void Unit::DisplayCurrentLocation(){
 
 
 class Zergling : public Unit{
-    public:
+public:
     void Move();
     bool IsSpeedUpgrade(bool isFirstTargetReached);
-    private:
-    int moveSpeed=1;
-    bool speedUpgrade=false;
+private:
+    int moveSpeed_=1;
+    bool speedUpgrade_=false;
 };
 
 bool Zergling::IsSpeedUpgrade(bool isFirstTargetReached)
 {
     if (isFirstTargetReached)
     {
-        moveSpeed = 2;
+        moveSpeed_ = 2;
     }
-    return (moveSpeed > 1);
+    return (moveSpeed_ > 1);
 }
 
 void Zergling::Move(){
 
-    Location p = GetLocation();
-    float ang1=diffAng(p, firstTargetPosition_);
-    float ang2=diffAng(p,targetPosition_);
-    float dis1=diffDistance(p,firstTargetPosition_);
-    float dis2=diffDistance(p,targetPosition_);
-    bool need_upgrade = (diffDistance(p, firstTargetPosition_) < epsilon_);
+    Location position = GetLocation();
+    float angle1=diffAngle(position, firstTargetPosition_);
+    float angle2=diffAngle(position,targetPosition_);
+    float distance1=diffDistance(position,firstTargetPosition_);
+    float distance2=diffDistance(position,targetPosition_);
+    bool need_upgrade = (diffDistance(position, firstTargetPosition_) < epsilon_);
     if(!IsSpeedUpgrade(need_upgrade))
     {
-        p.x_-=cos(ang1)*dt_*moveSpeed;
-        p.y_+=sin(ang1)*dt_*moveSpeed;
-        SetLocation(p.x_,p.y_);  
+        position.x_-=cos(angle1)*dt_*moveSpeed_;
+        position.y_+=sin(angle1)*dt_*moveSpeed_;
+        SetLocation(position.x_,position.y_);  
     }
     else{
-        p.x_-=cos(ang2)*dt_*moveSpeed;
-        p.y_+=sin(ang2)*dt_*moveSpeed;
-        SetLocation(p.x_,p.y_);
+        position.x_-=cos(angle2)*dt_*moveSpeed_;
+        position.y_+=sin(angle2)*dt_*moveSpeed_;
+        SetLocation(position.x_,position.y_);
     }
 }
 
@@ -100,7 +100,7 @@ public:
     void IsZerglingNear(Location ZerlingCurrentLocation);
 private:
     bool needSpeedUpgrade_ = false;
-    int moveSpeed=1;
+    int moveSpeed_=1;
 };
 
 void Marine::IsZerglingNear(Location ZerlingCurrentLocation){
@@ -108,23 +108,97 @@ void Marine::IsZerglingNear(Location ZerlingCurrentLocation){
     float d;
     d=diffDistance(GetLocation(),ZerlingCurrentLocation);
     if(d>5){
-        moveSpeed=1;
+        moveSpeed_=1;
         needSpeedUpgrade_ = false;
     }
     else{
-        moveSpeed=2;
+        moveSpeed_=2;
         needSpeedUpgrade_ = true;
     }
     
 }
 
 void Marine::Move(){
-    Location p=GetLocation();
-    float ang=diffAng(p,targetPosition_);
-        p.x_-=cos(ang)*dt_*moveSpeed;
-        p.y_+=sin(ang)*dt_*moveSpeed;
-        SetLocation(p.x_, p.y_);
+    Location position=GetLocation();
+    float angle=diffAngle(position,targetPosition_);
+    position.x_-=cos(angle)*dt_*moveSpeed_;
+    position.y_+=sin(angle)*dt_*moveSpeed_;
+    SetLocation(position.x_, position.y_);
 }
+
+class Stalker : public Unit{
+
+public:
+    void Move();
+    void Blink();
+
+    float ct_=0;
+    const float t_=10;
+
+private:
+    const int moveSpeed_=1;
+    bool firstTargetReached_=false;
+};
+
+void Stalker::Move(){
+
+    Location position=GetLocation();
+    float angle1=diffAngle(position,firstTargetPosition_);
+    float angle2=diffAngle(position,targetPosition_);
+    float distance1=diffDistance(position,firstTargetPosition_);
+    float distance2=diffDistance(position,targetPosition_);
+    if(distance1<epsilon_){
+        firstTargetReached_=true;
+    }
+
+    if(!firstTargetReached_){
+        position.x_-=cos(angle1)*dt_*moveSpeed_;
+        position.y_+=sin(angle1)*dt_*moveSpeed_;
+        SetLocation(position.x_,position.y_);
+    }
+
+    if(firstTargetReached_){
+        position.x_-=cos(angle2)*dt_*moveSpeed_;
+        position.y_+=sin(angle2)*dt_*moveSpeed_;
+        SetLocation(position.x_,position.y_);
+    }
+}
+
+void Stalker::Blink(){
+
+    float q=5;
+    Location position = GetLocation();
+    float angle1=diffAngle(position, firstTargetPosition_);
+    float angle2=diffAngle(position,targetPosition_);
+    float distance1=diffDistance(position,firstTargetPosition_);
+    float distance2=diffDistance(position,targetPosition_);
+    if(distance1<epsilon_){
+        firstTargetReached_=true;
+    }
+
+    if(!firstTargetReached_){
+        position.x_-=cos(angle1)*q;
+        position.y_+=sin(angle1)*q;
+        SetLocation(position.x_,position.y_);
+
+        if((abs(position.x_)>abs(firstTargetPosition_.x_))&&(abs(position.y_)>abs(firstTargetPosition_.y_))){
+
+            SetLocation(firstTargetPosition_.x_,firstTargetPosition_.y_);
+        }
+    }
+
+    if(firstTargetReached_){
+        position.x_-=cos(angle2)*q;
+        position.y_+=sin(angle2)*q;
+        SetLocation(position.x_,position.y_);
+
+        if((position.x_>targetPosition_.x_)&&(position.y_>targetPosition_.y_)){//절대값사용해보기 ㄱㄷ
+
+            SetLocation(targetPosition_.x_,targetPosition_.y_);
+        }
+    }    
+}
+
 int main(void){
 
     Zergling z;
@@ -136,6 +210,12 @@ int main(void){
     Marine m;
     m.targetPosition_.x_=50;
     m.targetPosition_.y_=50;
+
+    Stalker s;
+    s.firstTargetPosition_.x_=10;
+    s.firstTargetPosition_.y_=20;
+    s.targetPosition_.x_=50;
+    s.targetPosition_.y_=50;
 
     while(diffDistance(z.GetLocation(),z.targetPosition_) > z.epsilon_){
         
@@ -150,12 +230,35 @@ int main(void){
             m.countMove_+=m.dt_;
             //m.DisplayCurrentLocation();
         }
+        if(diffDistance(s.GetLocation(),s.targetPosition_)>s.epsilon_){
+           
+           if(s.ct_>0){
+            s.Move();
+            s.DisplayCurrentLocation();
+            s.countMove_+=s.dt_;
+            s.ct_-=s.dt_;
+           }
+           
+           if(s.ct_<=0){
+            s.Blink();
+            std::cout<<"Blink!!!"<<std::endl;
+            s.DisplayCurrentLocation();
+            s.countMove_+=s.dt_;
+            s.ct_=s.t_;
+            
+           }
+
+           
+        }
+
         //std::cout<<std::endl;
     }
-    z.DisplayCurrentLocation();
-    m.DisplayCurrentLocation();
+    //z.DisplayCurrentLocation();
+    //m.DisplayCurrentLocation();
+    //s.DisplayCurrentLocation();
     std::cout<<"저글링이 도착하는 시간 : "<<z.countMove_<<std::endl;
     std::cout<<"마린이 도착하는 시간 : "<<m.countMove_<<std::endl;
+    std::cout<<"스터커가 도착하는 시간 : "<<s.countMove_<<std::endl;
 
     return 0;
 }
