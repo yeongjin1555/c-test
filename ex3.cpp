@@ -5,17 +5,23 @@
 class fight{
     
 public : 
-    int power_;
-    int wisdom_;
-    int health_=100;
-    int dmg_;
     
     void Attack();
     void Defend();
     void Counterattack();
     void SpecialMove();
+    void SetWisdom(int wisoom);
+    void SetPower(int power);
+    void SetHealth(int health);
+    int GetWisdom();
+    int GetPower();
+    int GetHealth();
+private:
 
-    
+    int power_;
+    int wisdom_;
+    int health_=100;
+    int dmg_;
 
 };
 
@@ -25,38 +31,56 @@ class me : public fight
 {   
 
 public :
-    int power_;
-    int wisdom_;
-    int dmg_;
-    int health_=100;
 
     void Attack();
     void Defend();
     void Counterattack();
     void SpecialMove();
-    void DequeShow(std::deque<std::string> enemy_action);
     
+private:
+    int power_;
+    int wisdom_;
+    int dmg_;
+    int health_=100;
 };
 
 
 class enemy : public fight{
     
 public : 
-    int power_=100;
-    int wisdom_=50;
-    int dmg_;
-    int health_=100;
-
     void Attack();
     void Defend();
     void Counterattack();
     void SpecialMove();
-    
+private:
+    int power_=100;
+    int wisdom_=50;
+    int dmg_;
+    int health_=100;
 };
+void fight::SetPower(int power){
+    fight::power_=power;
+}
+
+void fight::SetWisdom(int wisdom){
+    fight::wisdom_=wisdom;
+}
+void fight::SetHealth(int health){
+    fight::health_=health;
+}
+int fight::GetHealth(){
+    return fight::health_;
+}
+int fight::GetWisdom(){
+    return fight::wisdom_;
+}
+int fight::GetPower(){
+    return fight::power_;
+}
 
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
 
-    std::deque<std::string> dq;
+    std::deque<std::string> dq={};
     
 
     for(int i=0; i<5;i++){   
@@ -65,16 +89,16 @@ std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 �
         
         if (a==0)
         {
-            dq[i]="Attack";
+            dq.push_back("Attack");
         }
         if (a==1)
         {
-            dq[i]="Defend";
+            dq.push_back("Defend");
         }
 
         if (a==2)
         {
-            dq[i]="CounterAttack";
+            dq.push_back("CounterAttack");
         }
     }
         
@@ -92,17 +116,48 @@ std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 �
  
 }
 
-void me::DequeShow(std::deque<std::string> enemy_action){//지력에 따라 항우의 action을 랜덤으로 보여줌
+void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisdom){//지력에 따라 항우의 action을 랜덤으로 보여줌
     
-    int a=(wisdom_-50)/10;
-    
-    for(int i=0;i<5;i++){
+    int a=(myWisdom-enemyWisdom)/10;
+    int count=0;
 
-        std::cout<<enemy_action[i];
+    for(int i=0;i<enemy_action.size();i++){
+        std::cout<<enemy_action[i]<<" ";
     }
-    //std::cout<<a<<std::endl;
 
-}
+    std::cout<<std::endl;
+
+    for(int i=0;i<enemy_action.size();i++){
+        int r=(rand()%2);
+            
+            if(count>a){
+                std::cout<<"? ";
+            }
+            
+            if(count<=a){
+                
+                if(r==0){
+                    std::cout<<enemy_action[i]<<" ";
+                    count+=1;
+                    }
+                if(r==1){
+                    std::cout<<"? ";
+                    
+                }
+                
+            
+            }
+
+            
+        }
+        
+        
+
+        //std::cout<<r;
+    }
+
+
+
 
 
 int main(void){
@@ -110,15 +165,16 @@ int main(void){
     srand(time(NULL));
     me yj;
     enemy hw;
-    yj.power_=(rand() % 21)+60;
-    yj.wisdom_=(rand() % 31)+70;
+    yj.SetPower((rand() % 21)+60);
+    yj.SetWisdom((rand() % 31)+70);
+    hw.SetPower(100);
+    hw.SetWisdom(50);
     
-    std::cout<<yj.power_<<" "<<yj.wisdom_<<std::endl;
+    std::cout<<yj.GetPower()<<" "<<yj.GetWisdom()<<std::endl;
     
     std::deque<std::string> hw_action=DequeGeneration();
-    yj.DequeShow(hw_action);
-    /*for(int i=0;i<5;i++){
-
-        std::cout<<hw_action[i]<<" ";
-    }*/
+    DequeShow(hw_action,yj.GetWisdom(),hw.GetWisdom());
+    
+   
+    return 0;
 }
