@@ -16,6 +16,7 @@ public :
     int GetWisdom();
     int GetPower();
     int GetHealth();
+    int CalculateDmg(std::string myAction, std::string enemyAction);
 private:
 
     int power_;
@@ -36,6 +37,7 @@ public :
     void Defend();
     void Counterattack();
     void SpecialMove();
+    int CalculateDmg(std::string myAction, std::string enemyAction,int mypower,int enemypower);
     
 private:
     int power_;
@@ -53,8 +55,8 @@ public :
     void Counterattack();
     void SpecialMove();
 private:
-    int power_=100;
-    int wisdom_=50;
+    int power_;
+    int wisdom_;
     int dmg_;
     int health_=100;
 };
@@ -77,6 +79,12 @@ int fight::GetWisdom(){
 int fight::GetPower(){
     return fight::power_;
 }
+int me::CalculateDmg(std::string myAction, std::string enemyAction,int mypower,int enemypower){
+    
+    
+    return 0;
+}
+
 
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
 
@@ -120,41 +128,43 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
     
     int a=(myWisdom-enemyWisdom)/10;
     int count=0;
+    int b=0;
+    //std::cout<<"Hangwoo's Move Prediction : ";
+    std::deque<int> c(5,0);
+    while(b<a){
+        int r=(rand()%2);
+        if(r==0){
+            int j=(rand()%5);
+            c[j]=1;
+            b+=1;
 
+        }
+    }
+    
     for(int i=0;i<enemy_action.size();i++){
         std::cout<<enemy_action[i]<<" ";
     }
 
     std::cout<<std::endl;
+    
+    for(int i=0;i<c.size();i++){
+        std::cout<<c[i]<<" ";
+    }
+
+    std::cout<<std::endl;
 
     for(int i=0;i<enemy_action.size();i++){
-        int r=(rand()%2);
-            
-            if(count>a){
-                std::cout<<"? ";
-            }
-            
-            if(count<=a){
-                
-                if(r==0){
-                    std::cout<<enemy_action[i]<<" ";
-                    count+=1;
-                    }
-                if(r==1){
-                    std::cout<<"? ";
-                    
-                }
-                
-            
-            }
-
-            
+        if(c[i]==1){
+            std::cout<<enemy_action[i]<<" ";
         }
-        
-        
-
-        //std::cout<<r;
+        else{
+            std::cout<<"? ";
+        }
     }
+
+   }
+
+
 
 
 
