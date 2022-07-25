@@ -202,6 +202,7 @@ int mywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
         }
 
         if(enemyAction=="CounterAttack"){
+            std::cout<<"상대의 다음 턴은 무효처리됩니다"<<std::endl;
             return -1;
         }
 
@@ -250,13 +251,19 @@ int mywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
         
     }
 
+    if(myAction=="Invalid"){
+        std::cout<<"당신의 이번 턴은 무효입니다"<<std::endl;
+        myAction="free";
+        return 0;
+    }
+
 }
 
 
-int enemywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
+int enemywar(std::string myAction, std::string enemyAction, enemy hw, me yj){
     
-    int myDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
-    int enemyDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
+    int myDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
+    int enemyDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
     if(myAction=="Attack"){
         if(enemyAction=="Attack"){
             return myDmg;
@@ -271,7 +278,7 @@ int enemywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
         }
 
         if(enemyAction=="SpecialMove"){
-            return myDmg;
+            return 0;
         }
         
         if(enemyAction=="Invalid"){
@@ -289,6 +296,8 @@ int enemywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
         }
 
         if(enemyAction=="CounterAttack"){
+            
+            std::cout<<"나의 다음 턴은 무효처리됩니다"<<std::endl;
             return -1;
         }
 
@@ -324,17 +333,32 @@ int enemywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
     }
 
     if(myAction=="SpecialMove"){
-        
-        float gain=0.1f;
-
-        if(enemyAction=="Defend"){
-            gain=0.2f;
+        int dmg=hw.GetHealth();
+        if(enemyAction=="Attack"){
+            return dmg;
         }
 
+        if(enemyAction=="Defend"){
+            return dmg/2;
+        }
 
-        int dmg=myDmg+((yj.GetWisdom()+abs(yj.GetPower()-hw.GetPower()))*gain);
-        return dmg;
+        if(enemyAction=="CounterAttack"){
+            return dmg/2;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return 0;
+        }
+
+        if(enemyAction=="Invalid"){
+            return dmg; 
+        }
         
+    }
+
+    if(myAction=="Invalid"){
+        std::cout<<"상대의 이번 턴은 무효입니다"<<std::endl;
+        return 0;
     }
 
 }
@@ -359,21 +383,66 @@ int main(void){
     std::cout<<"my Power : "<<yj.GetPower()<<" my Wisdom : "<<yj.GetWisdom()<<std::endl;
     int i=0;
     std::cout<<std::endl;
+    std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
     while(i<5){
+        if(myAction=="Invalid"){
+            int myhit=mywar(myAction,hw_action[i],yj,hw);
+            int enemyhit=enemywar(hw_action[i],myAction,hw,yj);
+            if(myhit==-1){
+                hw_action[i+1]="Invalid";
+            }
+            if(myhit>=0){
+                int hitdmg=hw.GetHealth()-myhit;
+                hw.SetHealth(hitdmg);
+            }
+
+            if(enemyhit>=0){
+                int hitdmg=yj.GetHealth()-enemyhit;
+                yj.SetHealth(hitdmg);
+            }
+        
+        
+            std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
+            std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
+            i+=1;
+            myAction="something";
+        }
+            
+        
+        else{    
         std::cin>>myAction;
         int myhit=mywar(myAction,hw_action[i],yj,hw);
+        int enemyhit=enemywar(hw_action[i],myAction,hw,yj);
         if(myhit==-1){
             hw_action[i+1]="Invalid";
         }
-        if(myhit>0){
+        if(myhit>=0){
             int hitdmg=hw.GetHealth()-myhit;
             hw.SetHealth(hitdmg);
         }
+
+        if(enemyhit==-1){
+            myAction="Invalid";
+        }
+        if(enemyhit>=0){
+            int hitdmg=yj.GetHealth()-enemyhit;
+            yj.SetHealth(hitdmg);
+        }
+
         
         std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
-        std::cout<<hw.GetHealth()<<std::endl;
+        std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
         i+=1;
+        }
         
+    }
+
+    if(yj.GetHealth()>hw.GetHealth()){
+        std::cout<<"축하합니다! 당신이 이겼습니다!"<<std::endl;
+    }
+
+    if(yj.GetHealth()<hw.GetHealth()){
+        std::cout<<"아깝습니다. 조금 더 분발해보세요"<<std::endl;
     }
 
     
