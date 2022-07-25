@@ -10,13 +10,17 @@ public :
     void Defend();
     void Counterattack();
     void SpecialMove();
+
+
     void SetWisdom(int wisoom);
     void SetPower(int power);
     void SetHealth(int health);
+    void SetDmg(int myPower, int enemyPower);
     int GetWisdom();
     int GetPower();
     int GetHealth();
-    int CalculateDmg(std::string myAction, std::string enemyAction);
+    int GetDmg();
+
 private:
 
     int power_;
@@ -33,11 +37,7 @@ class me : public fight
 
 public :
 
-    void Attack();
-    void Defend();
-    void Counterattack();
-    void SpecialMove();
-    int CalculateDmg(std::string myAction, std::string enemyAction,int mypower,int enemypower);
+    
     
 private:
     int power_;
@@ -50,41 +50,44 @@ private:
 class enemy : public fight{
     
 public : 
-    void Attack();
-    void Defend();
-    void Counterattack();
-    void SpecialMove();
+    
 private:
     int power_;
     int wisdom_;
     int dmg_;
     int health_=100;
 };
+
 void fight::SetPower(int power){
-    fight::power_=power;
+    power_=power;
 }
 
 void fight::SetWisdom(int wisdom){
-    fight::wisdom_=wisdom;
-}
-void fight::SetHealth(int health){
-    fight::health_=health;
-}
-int fight::GetHealth(){
-    return fight::health_;
-}
-int fight::GetWisdom(){
-    return fight::wisdom_;
-}
-int fight::GetPower(){
-    return fight::power_;
-}
-int me::CalculateDmg(std::string myAction, std::string enemyAction,int mypower,int enemypower){
-    
-    
-    return 0;
+    wisdom_=wisdom;
 }
 
+void fight::SetHealth(int health){
+    health_=health;
+}
+
+void fight::SetDmg(int myPower, int enemyPower){
+    dmg_=(50-(enemyPower-myPower))/2;
+}
+int fight::GetHealth(){
+    return health_;
+}
+
+int fight::GetWisdom(){
+    return wisdom_;
+}
+
+int fight::GetPower(){
+    return power_;
+}
+
+int fight::GetDmg(){
+    return dmg_;
+}
 
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
 
@@ -131,12 +134,15 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
     int b=0;
     //std::cout<<"Hangwoo's Move Prediction : ";
     std::deque<int> c(5,0);
+    
     while(b<a){
         int r=(rand()%2);
         if(r==0){
             int j=(rand()%5);
-            c[j]=1;
-            b+=1;
+            if(c[j]==0){
+                c[j]=1;
+                b+=1;    
+            } 
 
         }
     }
@@ -181,7 +187,10 @@ int main(void){
     hw.SetWisdom(50);
     
     std::cout<<yj.GetPower()<<" "<<yj.GetWisdom()<<std::endl;
-    
+    yj.SetDmg(yj.GetPower(),hw.GetPower());
+    hw.SetDmg(hw.GetPower(),yj.GetPower());
+    //std::cout<<"my dmg : "<<yj.GetDmg()<<" enemy dmg : "<<hw.GetDmg()<<std::endl;
+
     std::deque<std::string> hw_action=DequeGeneration();
     DequeShow(hw_action,yj.GetWisdom(),hw.GetWisdom());
     
