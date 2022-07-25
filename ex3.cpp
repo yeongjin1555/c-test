@@ -384,7 +384,7 @@ int main(void){
     int i=0;
     std::cout<<std::endl;
     std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
-    while(i<5){
+    while(i<5&&yj.GetHealth()>0&&hw.GetHealth()>0){
         if(myAction=="Invalid"){
             int myhit=mywar(myAction,hw_action[i],yj,hw);
             int enemyhit=enemywar(hw_action[i],myAction,hw,yj);
