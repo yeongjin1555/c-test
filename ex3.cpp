@@ -9,8 +9,6 @@ public :
     void SetWisdom(int wisoom);
     void SetPower(int power);
     void SetHealth(int health);
-    void SetDmg(int dmg);
-    void SetDmg(int myPower, int enemyPower);
     int GetWisdom();
     int GetPower();
     int GetHealth();
@@ -62,9 +60,6 @@ void fight::SetHealth(int health){
     health_=health;
 }
 
-void fight::SetDmg(int myPower, int enemyPower){
-    dmg_=(50-(enemyPower-myPower))/2;
-}
 
 int fight::GetHealth(){
     return health_;
@@ -83,9 +78,6 @@ int fight::GetDmg(){
 }
 
 
-void fight::SetDmg(int dmg){
-    dmg_=dmg;
-}
 
 
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
@@ -373,9 +365,6 @@ int main(void){
     yj.SetWisdom((rand() % 31)+70);
     hw.SetPower(100);
     hw.SetWisdom(50);
-    
-    yj.SetDmg(yj.GetPower(),hw.GetPower());
-    hw.SetDmg(hw.GetPower(),yj.GetPower());
     
     std::deque<std::string> hw_action=DequeGeneration();
     DequeShow(hw_action,yj.GetWisdom(),hw.GetWisdom());
