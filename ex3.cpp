@@ -6,15 +6,10 @@ class fight{
     
 public : 
     
-    void Attack();
-    void Defend();
-    void Counterattack();
-    void SpecialMove();
-
-
     void SetWisdom(int wisoom);
     void SetPower(int power);
     void SetHealth(int health);
+    void SetDmg(int dmg);
     void SetDmg(int myPower, int enemyPower);
     int GetWisdom();
     int GetPower();
@@ -32,13 +27,10 @@ private:
 
 
 
-class me : public fight
-{   
+class me : public fight{   
 
 public :
 
-    
-    
 private:
     int power_;
     int wisdom_;
@@ -73,6 +65,7 @@ void fight::SetHealth(int health){
 void fight::SetDmg(int myPower, int enemyPower){
     dmg_=(50-(enemyPower-myPower))/2;
 }
+
 int fight::GetHealth(){
     return health_;
 }
@@ -89,10 +82,15 @@ int fight::GetDmg(){
     return dmg_;
 }
 
+
+void fight::SetDmg(int dmg){
+    dmg_=dmg;
+}
+
+
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
 
     std::deque<std::string> dq={};
-    
 
     for(int i=0; i<5;i++){   
         
@@ -112,7 +110,6 @@ std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 �
             dq.push_back("CounterAttack");
         }
     }
-        
     
     int b= (rand()%2);//b,c Specialmove 넣기 위한 임의의 변수
         if(b==1)
@@ -120,11 +117,9 @@ std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 �
             int c= (rand()%5);
             dq[c]="SpecialMove";
         }
-
         
     return dq;
 
- 
 }
 
 void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisdom){//지력에 따라 항우의 action을 랜덤으로 보여줌
@@ -147,7 +142,7 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
         }
     }
     
-    for(int i=0;i<enemy_action.size();i++){
+    /*for(int i=0;i<enemy_action.size();i++){
         std::cout<<enemy_action[i]<<" ";
     }
 
@@ -158,7 +153,7 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
     }
 
     std::cout<<std::endl;
-
+*/
     for(int i=0;i<enemy_action.size();i++){
         if(c[i]==1){
             std::cout<<enemy_action[i]<<" ";
@@ -170,14 +165,183 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
 
    }
 
+int mywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
+    
+    int myDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
+    int enemyDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
+    if(myAction=="Attack"){
+        if(enemyAction=="Attack"){
+            return myDmg;
+        }
+
+        if(enemyAction=="Defend"){
+            return 0;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return 10;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return myDmg;
+        }
+
+        if(enemyAction=="Invalid"){
+            return myDmg; 
+        }
+        
+    }
+
+    if(myAction=="Defend"){
+        if(enemyAction=="Attack"){
+            return 0;
+        }
+
+        if(enemyAction=="Defend"){
+            return 0;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return -1;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return 0;
+        }
+
+        if(enemyAction=="Invalid"){
+            return 0; 
+        }
+    }
+
+    if(myAction=="CounterAttack"){
+        if(enemyAction=="Attack"){
+            return enemyDmg;
+        }
+
+        if(enemyAction=="Defend"){
+            return 20;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return myDmg;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return 0;
+        }
+
+        if(enemyAction=="Invalid"){
+            return myDmg; 
+        }
+    }
+
+    if(myAction=="SpecialMove"){
+        
+        float gain=0.1f;
+
+        if(enemyAction=="Defend"){
+            gain=0.2f;
+        }
 
 
+        int dmg=myDmg+((yj.GetWisdom()+abs(yj.GetPower()-hw.GetPower()))*gain);
+        return dmg;
+        
+    }
+
+}
 
 
+int enemywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
+    
+    int myDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
+    int enemyDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
+    if(myAction=="Attack"){
+        if(enemyAction=="Attack"){
+            return myDmg;
+        }
 
+        if(enemyAction=="Defend"){
+            return 0;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return 10;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return myDmg;
+        }
+        
+        if(enemyAction=="Invalid"){
+            return myDmg; 
+        }
+    }
+
+    if(myAction=="Defend"){
+        if(enemyAction=="Attack"){
+            return 0;
+        }
+
+        if(enemyAction=="Defend"){
+            return 0;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return -1;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return 0;
+        }
+
+        if(enemyAction=="Invalid"){
+            return 0; 
+        }
+    }
+
+    if(myAction=="CounterAttack"){
+        if(enemyAction=="Attack"){
+            return enemyDmg;
+        }
+
+        if(enemyAction=="Defend"){
+            return 20;
+        }
+
+        if(enemyAction=="CounterAttack"){
+            return myDmg;
+        }
+
+        if(enemyAction=="SpecialMove"){
+            return 0;
+        }
+
+        if(enemyAction=="Invalid"){
+            return myDmg; 
+        }
+    }
+
+    if(myAction=="SpecialMove"){
+        
+        float gain=0.1f;
+
+        if(enemyAction=="Defend"){
+            gain=0.2f;
+        }
+
+
+        int dmg=myDmg+((yj.GetWisdom()+abs(yj.GetPower()-hw.GetPower()))*gain);
+        return dmg;
+        
+    }
+
+}
 
 int main(void){
     
+    std::string myAction;
     srand(time(NULL));
     me yj;
     enemy hw;
@@ -186,14 +350,37 @@ int main(void){
     hw.SetPower(100);
     hw.SetWisdom(50);
     
-    std::cout<<yj.GetPower()<<" "<<yj.GetWisdom()<<std::endl;
     yj.SetDmg(yj.GetPower(),hw.GetPower());
     hw.SetDmg(hw.GetPower(),yj.GetPower());
-    //std::cout<<"my dmg : "<<yj.GetDmg()<<" enemy dmg : "<<hw.GetDmg()<<std::endl;
-
+    
     std::deque<std::string> hw_action=DequeGeneration();
     DequeShow(hw_action,yj.GetWisdom(),hw.GetWisdom());
+    std::cout<<std::endl;
+    std::cout<<"my Power : "<<yj.GetPower()<<" my Wisdom : "<<yj.GetWisdom()<<std::endl;
+    int i=0;
+    std::cout<<std::endl;
+    while(i<5){
+        std::cin>>myAction;
+        int myhit=mywar(myAction,hw_action[i],yj,hw);
+        if(myhit==-1){
+            hw_action[i+1]="Invalid";
+        }
+        if(myhit>0){
+            int hitdmg=hw.GetHealth()-myhit;
+            hw.SetHealth(hitdmg);
+        }
+        
+        std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
+        std::cout<<hw.GetHealth()<<std::endl;
+        i+=1;
+        
+    }
+
     
-   
+    /*std::cout<<"my Power : "<<yj.GetPower()<<" my Wisdom : "<<yj.GetWisdom()<<std::endl;
+    std::cout<<"enemy Power : "<<hw.GetPower()<<" enemy Wisdom : "<<hw.GetWisdom()<<std::endl;
+    std::cout<<"my dmg : "<<yj.GetDmg()<<" enemy dmg : "<<hw.GetDmg()<<std::endl;
+    std::cout<<"my Health : "<<yj.GetHealth()<<" enemy Health : "<<hw.GetHealth()<<std::endl;*/
+    
     return 0;
 }
