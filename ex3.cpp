@@ -12,8 +12,7 @@ public :
     int GetWisdom();
     int GetPower();
     int GetHealth();
-    int GetDmg();
-
+    
 private:
 
     int power_;
@@ -60,7 +59,6 @@ void fight::SetHealth(int health){
     health_=health;
 }
 
-
 int fight::GetHealth(){
     return health_;
 }
@@ -72,12 +70,6 @@ int fight::GetWisdom(){
 int fight::GetPower(){
     return power_;
 }
-
-int fight::GetDmg(){
-    return dmg_;
-}
-
-
 
 
 std::deque<std::string> DequeGeneration(){//항우의 랜덤한 모션 덱에 생성해서 저장 후 출력
@@ -119,15 +111,16 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
     int a=(myWisdom-enemyWisdom)/10;
     int count=0;
     int b=0;
-    //std::cout<<"Hangwoo's Move Prediction : ";
-    std::deque<int> c(5,0);
+    std::cout<<"Hangwoo's Move Prediction : ";
+    
+    std::deque<int> panel(5,0);
     
     while(b<a){
         int r=(rand()%2);
         if(r==0){
             int j=(rand()%5);
-            if(c[j]==0){
-                c[j]=1;
+            if(panel[j]==0){
+                panel[j]=1;
                 b+=1;    
             } 
 
@@ -147,7 +140,7 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
     std::cout<<std::endl;
 */
     for(int i=0;i<enemy_action.size();i++){
-        if(c[i]==1){
+        if(panel[i]==1){
             std::cout<<enemy_action[i]<<" ";
         }
         else{
@@ -157,7 +150,7 @@ void DequeShow(std::deque<std::string> enemy_action, int myWisdom, int enemyWisd
 
    }
 
-int mywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
+int myWar(std::string myAction, std::string enemyAction, me yj, enemy hw){
     
     int myDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
     int enemyDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
@@ -249,10 +242,15 @@ int mywar(std::string myAction, std::string enemyAction, me yj, enemy hw){
         return 0;
     }
 
+    else{
+        std::cout<<"잘 못 입력하셨습니다. "<<std::endl;
+        return -2;
+    }
+
 }
 
 
-int enemywar(std::string myAction, std::string enemyAction, enemy hw, me yj){
+int enemyWar(std::string myAction, std::string enemyAction, enemy hw, me yj){
     
     int myDmg=(50-(yj.GetPower()-hw.GetPower()))/2;
     int enemyDmg=(50-(hw.GetPower()-yj.GetPower()))/2;
@@ -367,30 +365,23 @@ int main(void){
     hw.SetWisdom(50);
     
     std::deque<std::string> hw_action=DequeGeneration();
+
     DequeShow(hw_action,yj.GetWisdom(),hw.GetWisdom());
+
     std::cout<<std::endl;
     std::cout<<"my Power : "<<yj.GetPower()<<" my Wisdom : "<<yj.GetWisdom()<<std::endl;
-    int i=0;
     std::cout<<std::endl;
     std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
-    while(i<5&&yj.GetHealth()>0&&hw.GetHealth()>0){
-        if(myAction=="Invalid"){
-            int myhit=mywar(myAction,hw_action[i],yj,hw);
-            int enemyhit=enemywar(hw_action[i],myAction,hw,yj);
-            if(myhit==-1){
-                hw_action[i+1]="Invalid";
-            }
-            if(myhit>=0){
-                int hitdmg=hw.GetHealth()-myhit;
-                hw.SetHealth(hitdmg);
-            }
 
-            if(enemyhit>=0){
-                int hitdmg=yj.GetHealth()-enemyhit;
-                yj.SetHealth(hitdmg);
-            }
+    int i=0;
+
+    while(i<5&&yj.GetHealth()>0&&hw.GetHealth()>0){
         
-        
+        if(myAction=="Invalid"){
+            int enemyHit=enemyWar(hw_action[i],myAction,hw,yj);
+            int myHealth=yj.GetHealth()-enemyHit;
+            yj.SetHealth(myHealth);
+
             std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
             std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
             i+=1;
@@ -399,32 +390,39 @@ int main(void){
             
         
         else{    
-        std::cin>>myAction;
-        int myhit=mywar(myAction,hw_action[i],yj,hw);
-        int enemyhit=enemywar(hw_action[i],myAction,hw,yj);
-        if(myhit==-1){
-            hw_action[i+1]="Invalid";
-        }
-        if(myhit>=0){
-            int hitdmg=hw.GetHealth()-myhit;
-            hw.SetHealth(hitdmg);
+                std::cin>>myAction;
+                int myHit=myWar(myAction,hw_action[i],yj,hw);
+                int enemyHit=enemyWar(hw_action[i],myAction,hw,yj);
+                
+                if(myHit==-2){
+                    std::cout<<"다시 입력해주세요 "<<std::endl;
+                    continue;
+                }
+                
+                if(myHit==-1){
+                    hw_action[i+1]="Invalid";
+                }
+
+                if(myHit>=0){
+                    int enemyHealth=hw.GetHealth()-myHit;
+                    hw.SetHealth(enemyHealth);
+                }
+
+                if(enemyHit==-1){
+                    myAction="Invalid";
+                }
+                if(enemyHit>=0){
+                    int myHealth=yj.GetHealth()-enemyHit;
+                    yj.SetHealth(myHealth);
+                }
+        
+                std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
+                std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
+                i+=1;
+            }
+        
         }
 
-        if(enemyhit==-1){
-            myAction="Invalid";
-        }
-        if(enemyhit>=0){
-            int hitdmg=yj.GetHealth()-enemyhit;
-            yj.SetHealth(hitdmg);
-        }
-
-        
-        std::cout<<"My Action : "<<myAction<<" Enemy's Action : "<<hw_action[i]<<std::endl;
-        std::cout<<"My Health : "<<yj.GetHealth()<<" Enemy's Health : "<<hw.GetHealth()<<std::endl;
-        i+=1;
-        }
-        
-    }
 
     if(yj.GetHealth()>hw.GetHealth()){
         std::cout<<"축하합니다! 당신이 이겼습니다!"<<std::endl;
